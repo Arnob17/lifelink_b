@@ -1,0 +1,79 @@
+// LifeLink — unified human services data model
+// MySQL + Prisma (flexible listings + roles)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  BUSINESS
+  ADMIN
+}
+
+enum ListingType {
+  BLOOD_DONOR
+  BLOOD_BANK
+  PHARMACY
+  CLINIC
+  JOB
+  TEACHER
+  NEWS
+}
+
+model User {
+  id             String           @id @default(cuid())
+  email          String           @unique
+  passwordHash   String           @map("password_hash")
+  name           String
+  phone          String?
+  role           Role             @default(USER)
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  listings       Listing[]
+  businessProfile BusinessProfile?
+
+  @@map("users")
+}
+
+model BusinessProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique @map("user_id")
+  organizationName   String   @map("organization_name")
+  description        String?  @db.Text
+  website            String?
+  verified           Boolean  @default(false)
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("business_profiles")
+}
+
+model Listing {
+  id           String       @id @default(cuid())
+  type         ListingType
+  title        String
+  description  String       @db.Text
+  address      String?
+  latitude     Float?
+  longitude    Float?
+  contactEmail String?      @map("contact_email")
+  contactPhone String?      @map("contact_phone")
+  metadata     Json?
+  published    Boolean      @default(true)
+  ownerId      String       @map("owner_id")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  owner        User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([type, published])
+  @@index([ownerId])
+  @@index([latitude, longitude])
+  @@map("listings")
+}
