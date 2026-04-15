@@ -20,6 +20,7 @@ async function main() {
 
   await prisma.listing.deleteMany();
   await prisma.businessProfile.deleteMany();
+  await prisma.feedPost.deleteMany();
   await prisma.user.deleteMany();
 
   const userAlice = await prisma.user.create({
@@ -630,6 +631,28 @@ async function main() {
         ...p(-0.019, -0.022),
         metadata: { category: 'রক্ত', readingMins: 2 },
         ownerId: bizNews.id,
+      },
+    ],
+  });
+
+  await prisma.feedPost.createMany({
+    data: [
+      {
+        authorId: userAlice.id,
+        title: 'আজকের রক্তদান ক্যাম্পে যোগ দিলে কী হবে?',
+        content:
+          'প্রথমবার গেলে রেজিস্ট্রেশন ও স্ক্রিনিং নিয়ে ভয় পাবেন না — স্বেচ্ছাসেবকরা সব ধাপ বুঝিয়ে দেন। আমার অভিজ্ঞতা: গুলশান কমিউনিটি সেন্টারে লাইন ছিল, তবে ৪০ মিনিটের মধ্যে শেষ।',
+      },
+      {
+        authorId: userBob.id,
+        content:
+          'রেডিট-স্টাইল টিপ: চাকরির পোস্টে ঠিকানা ও BNC নম্বর একসাথে দিলে রিক্রুটাররা দ্রুত ফিল্টার করতে পারে। লাইফলিংকে টেমপ্লেট বানিয়ে রাখুন।',
+      },
+      {
+        authorId: userCharlie.id,
+        title: 'ফার্মেসি খোঁজার সময় যা দেখি',
+        content:
+          'রাতে জরুরি ওষুধের জন্য ২৪/৭ ট্যাগ থাকলে মানচিত্রে সবুজ বেশি দেখা যায়। ক্লোজড হলে রিভিউতে সময় লিখে দিন — পরের জন সহজ হয়।',
       },
     ],
   });
