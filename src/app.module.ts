@@ -14,6 +14,7 @@ import { MapModule } from './map/map.module';
 import { NewsModule } from './news/news.module';
 import { JobsModule } from './jobs/jobs.module';
 import { PostsModule } from './posts/posts.module';
+import { SosModule } from './sos/sos.module';
 import { HealthController } from './health.controller';
 
 /** Prefer project-root `.env` next to `dist/` so `JWT_*` load even when `cwd` is not `lifelink_b`. */
@@ -39,6 +40,7 @@ const envFilePath = [...new Set(envFileCandidates.filter((p) => existsSync(p)))]
     NewsModule,
     JobsModule,
     PostsModule,
+    SosModule,
   ],
   controllers: [HealthController],
   providers: [
