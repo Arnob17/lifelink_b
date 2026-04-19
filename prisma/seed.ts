@@ -1,4 +1,4 @@
-import { ListingType, PrismaClient, Role } from '@prisma/client';
+import { ListingType, ProductCategory, PrismaClient, Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -18,6 +18,10 @@ function at(dx: number, dy: number) {
 async function main() {
   const passwordHash = await bcrypt.hash('lifelink-demo', 10);
 
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.cartItem.deleteMany();
+  await prisma.product.deleteMany();
   await prisma.listing.deleteMany();
   await prisma.businessProfile.deleteMany();
   await prisma.feedPost.deleteMany();
@@ -657,10 +661,377 @@ async function main() {
     ],
   });
 
+  // ——— Essential Things: E-Commerce Shops ———
+
+  const bizGrocery = await prisma.user.create({
+    data: {
+      email: 'agora@demo.lifelink',
+      passwordHash,
+      name: 'আগোরা সুপারশপ',
+      phone: '+8801711000800',
+      role: Role.BUSINESS,
+      businessProfile: {
+        create: {
+          organizationName: 'আগোরা সুপারশপ',
+          description: 'দৈনন্দিন মুদি, তাজা শাক-সবজি ও গৃহস্থালি পণ্য।',
+          verified: true,
+        },
+      },
+    },
+  });
+
+  const bizTech = await prisma.user.create({
+    data: {
+      email: 'startech@demo.lifelink',
+      passwordHash,
+      name: 'স্টারটেক ইলেকট্রনিক্স',
+      phone: '+8801711000801',
+      role: Role.BUSINESS,
+      businessProfile: {
+        create: {
+          organizationName: 'স্টারটেক ইলেকট্রনিক্স',
+          description: 'ল্যাপটপ, মোবাইল, গ্যাজেট ও এক্সেসরিজ।',
+          verified: true,
+        },
+      },
+    },
+  });
+
+  const bizClothing = await prisma.user.create({
+    data: {
+      email: 'aarong@demo.lifelink',
+      passwordHash,
+      name: 'আড়ং ফ্যাশন',
+      phone: '+8801711000802',
+      role: Role.BUSINESS,
+      businessProfile: {
+        create: {
+          organizationName: 'আড়ং ফ্যাশন',
+          description: 'বাংলাদেশি ঐতিহ্যবাহী ও আধুনিক পোশাক।',
+          verified: true,
+        },
+      },
+    },
+  });
+
+  const bizBooks = await prisma.user.create({
+    data: {
+      email: 'rokomari@demo.lifelink',
+      passwordHash,
+      name: 'রকমারি বুকশপ',
+      phone: '+8801711000803',
+      role: Role.BUSINESS,
+      businessProfile: {
+        create: {
+          organizationName: 'রকমারি বুকশপ',
+          description: 'বাংলা ও ইংরেজি বই, স্টেশনারি ও শিক্ষা উপকরণ।',
+          verified: true,
+        },
+      },
+    },
+  });
+
+  await prisma.product.createMany({
+    data: [
+      // ——— মুদি / Grocery ———
+      {
+        name: 'মিনিকেট চাল ৫ কেজি',
+        description: 'সরু দানা, সুগন্ধি মিনিকেট। পারিবারিক প্যাক।',
+        price: 420,
+        unit: 'packet',
+        category: ProductCategory.GROCERY,
+        stock: 150,
+        imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=400&fit=crop',
+        sellerId: bizGrocery.id,
+      },
+      {
+        name: 'সয়াবিন তেল ৫ লিটার',
+        description: 'ফ্রেশ সয়াবিন তেল — রান্নার জন্য আদর্শ।',
+        price: 780,
+        unit: 'bottle',
+        category: ProductCategory.GROCERY,
+        stock: 80,
+        imageUrl: 'https://images.unsplash.com/photo-1474979266404-7f28b8a9e4f0?w=400&h=400&fit=crop',
+        sellerId: bizGrocery.id,
+      },
+      {
+        name: 'লাল চা (BOP) ৪০০ গ্রাম',
+        description: 'ইস্পাহানি মিক্সড টি — সকালের এক কাপ তাজা চা।',
+        price: 290,
+        unit: 'packet',
+        category: ProductCategory.GROCERY,
+        stock: 200,
+        imageUrl: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=400&fit=crop',
+        sellerId: bizGrocery.id,
+      },
+      {
+        name: 'ডিম (১২ পিস)',
+        description: 'দেশি মুরগির ডিম — তাজা ফার্ম থেকে সরাসরি।',
+        price: 180,
+        unit: 'dozen',
+        category: ProductCategory.GROCERY,
+        stock: 100,
+        imageUrl: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&h=400&fit=crop',
+        sellerId: bizGrocery.id,
+      },
+      {
+        name: 'পেঁয়াজ ২ কেজি',
+        description: 'দেশি পেঁয়াজ — পরিষ্কার ও শুকনো।',
+        price: 120,
+        unit: 'kg',
+        category: ProductCategory.GROCERY,
+        stock: 300,
+        imageUrl: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&h=400&fit=crop',
+        sellerId: bizGrocery.id,
+      },
+      {
+        name: 'চিনি ১ কেজি',
+        description: 'সাদা পরিশোধিত চিনি।',
+        price: 125,
+        unit: 'kg',
+        category: ProductCategory.GROCERY,
+        stock: 250,
+        sellerId: bizGrocery.id,
+      },
+
+      // ——— ইলেকট্রনিক্স / Electronics ———
+      {
+        name: 'ওয়্যারলেস ইয়ারবাড (TWS)',
+        description: 'ব্লুটুথ ৫.৩, নয়েজ ক্যান্সেলিং, ৩০ ঘণ্টা ব্যাটারি।',
+        price: 1850,
+        unit: 'piece',
+        category: ProductCategory.ELECTRONICS,
+        stock: 45,
+        imageUrl: 'https://images.unsplash.com/photo-1590658268037-6bf12f032f55?w=400&h=400&fit=crop',
+        sellerId: bizTech.id,
+      },
+      {
+        name: '১০,০০০ mAh পাওয়ারব্যাংক',
+        description: 'ডুয়াল USB আউটপুট, ফাস্ট চার্জ সাপোর্ট, LED ইন্ডিকেটর।',
+        price: 1200,
+        unit: 'piece',
+        category: ProductCategory.ELECTRONICS,
+        stock: 60,
+        imageUrl: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400&h=400&fit=crop',
+        sellerId: bizTech.id,
+      },
+      {
+        name: 'USB-C হাব ৭-in-১',
+        description: 'HDMI, USB 3.0, SD কার্ড রিডার, PD চার্জিং।',
+        price: 2400,
+        unit: 'piece',
+        category: ProductCategory.ELECTRONICS,
+        stock: 30,
+        imageUrl: 'https://images.unsplash.com/photo-1625723044792-44de16be1cce?w=400&h=400&fit=crop',
+        sellerId: bizTech.id,
+      },
+      {
+        name: 'মেকানিক্যাল কীবোর্ড (RGB)',
+        description: 'ব্লু সুইচ, ফুল সাইজ, USB + ব্লুটুথ।',
+        price: 3500,
+        unit: 'piece',
+        category: ProductCategory.ELECTRONICS,
+        stock: 25,
+        imageUrl: 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=400&h=400&fit=crop',
+        sellerId: bizTech.id,
+      },
+      {
+        name: 'ওয়েবক্যাম HD 1080p',
+        description: 'অটো ফোকাস, বিল্ট-ইন মাইক, ক্লিপ মাউন্ট।',
+        price: 2200,
+        unit: 'piece',
+        category: ProductCategory.ELECTRONICS,
+        stock: 20,
+        imageUrl: 'https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=400&h=400&fit=crop',
+        sellerId: bizTech.id,
+      },
+
+      // ——— পোশাক / Clothing ———
+      {
+        name: 'পাঞ্জাবি — সাদা কটন (পুরুষ)',
+        description: 'হাতে বোনা সুতি — ঈদ ও উৎসবে মানানসই।',
+        price: 1650,
+        unit: 'piece',
+        category: ProductCategory.CLOTHING,
+        stock: 40,
+        imageUrl: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=400&fit=crop',
+        sellerId: bizClothing.id,
+      },
+      {
+        name: 'জামদানি শাড়ি (তাঁত)',
+        description: 'খাঁটি জামদানি — ঐতিহ্যবাহী মসলিন বুনন।',
+        price: 4500,
+        unit: 'piece',
+        category: ProductCategory.CLOTHING,
+        stock: 15,
+        imageUrl: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=400&fit=crop',
+        sellerId: bizClothing.id,
+      },
+      {
+        name: 'ক্যাজুয়াল টি-শার্ট (ইউনিসেক্স)',
+        description: 'সফট কটন, ৪ রঙে পাওয়া যায়। M/L/XL সাইজ।',
+        price: 450,
+        unit: 'piece',
+        category: ProductCategory.CLOTHING,
+        stock: 120,
+        imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop',
+        sellerId: bizClothing.id,
+      },
+      {
+        name: 'ডেনিম জিন্স (স্লিম ফিট)',
+        description: 'স্ট্রেচ ডেনিম, গাঢ় নীল — ২৮-৩৬ ওয়েস্ট।',
+        price: 1250,
+        unit: 'piece',
+        category: ProductCategory.CLOTHING,
+        stock: 55,
+        imageUrl: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop',
+        sellerId: bizClothing.id,
+      },
+
+      // ——— ঔষধ / Medicine ———
+      {
+        name: 'প্যারাসিটামল ৫০০ মিগ্রা (১০ ট্যাবলেট)',
+        description: 'জ্বর ও ব্যথায় — প্রাপ্তবয়স্কদের জন্য।',
+        price: 12,
+        unit: 'strip',
+        category: ProductCategory.MEDICINE,
+        stock: 500,
+        imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=400&fit=crop',
+        sellerId: bizPharma.id,
+      },
+      {
+        name: 'ভিটামিন সি ১০০০ মিগ্রা (৩০ ট্যাবলেট)',
+        description: 'রোগ প্রতিরোধ ক্ষমতা বাড়ায়। দিনে ১ ট্যাবলেট।',
+        price: 350,
+        unit: 'bottle',
+        category: ProductCategory.MEDICINE,
+        stock: 200,
+        imageUrl: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=400&h=400&fit=crop',
+        sellerId: bizPharma.id,
+      },
+      {
+        name: 'ফার্স্ট এইড কিট (বেসিক)',
+        description: 'ব্যান্ডেজ, গজ, এন্টিসেপ্টিক, কাঁচি — পরিবারের জন্য।',
+        price: 650,
+        unit: 'kit',
+        category: ProductCategory.MEDICINE,
+        stock: 75,
+        imageUrl: 'https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=400&h=400&fit=crop',
+        sellerId: bizPharma.id,
+      },
+      {
+        name: 'হ্যান্ড স্যানিটাইজার ৫০০ মিলি',
+        description: '৭০% অ্যালকোহল বেসড — পাম্প বোতল।',
+        price: 180,
+        unit: 'bottle',
+        category: ProductCategory.MEDICINE,
+        stock: 300,
+        sellerId: bizPharma.id,
+      },
+
+      // ——— বই / Books ———
+      {
+        name: 'ফেলুদা সমগ্র (হার্ডকভার)',
+        description: 'সত্যজিৎ রায় — সব কাহিনী এক খণ্ডে।',
+        price: 850,
+        unit: 'piece',
+        category: ProductCategory.BOOKS,
+        stock: 35,
+        imageUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=400&fit=crop',
+        sellerId: bizBooks.id,
+      },
+      {
+        name: 'প্রোগ্রামিং পাইথন (বাংলা)',
+        description: 'শিক্ষানবিশদের জন্য — প্রজেক্ট সহ।',
+        price: 420,
+        unit: 'piece',
+        category: ProductCategory.BOOKS,
+        stock: 50,
+        imageUrl: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=400&fit=crop',
+        sellerId: bizBooks.id,
+      },
+      {
+        name: 'IELTS প্রিপারেশন গাইড (2026)',
+        description: 'প্র্যাকটিস টেস্ট ও টিপস সহ সম্পূর্ণ গাইড।',
+        price: 550,
+        unit: 'piece',
+        category: ProductCategory.BOOKS,
+        stock: 40,
+        imageUrl: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&h=400&fit=crop',
+        sellerId: bizBooks.id,
+      },
+
+      // ——— স্টেশনারি / Stationery ———
+      {
+        name: 'নোটবুক A4 (২০০ পাতা)',
+        description: 'সাদা রুলড পেজ — বিশ্ববিদ্যালয় ও অফিস উপযোগী।',
+        price: 120,
+        unit: 'piece',
+        category: ProductCategory.STATIONERY,
+        stock: 200,
+        imageUrl: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400&h=400&fit=crop',
+        sellerId: bizBooks.id,
+      },
+      {
+        name: 'বলপয়েন্ট কলম সেট (৬ পিস)',
+        description: 'নীল ও কালো — মসৃণ লেখা, গ্রিপ ডিজাইন।',
+        price: 90,
+        unit: 'set',
+        category: ProductCategory.STATIONERY,
+        stock: 300,
+        sellerId: bizBooks.id,
+      },
+
+      // ——— ঘর ও রান্না / Home & Kitchen ———
+      {
+        name: 'স্টেইনলেস স্টিল পানির বোতল (১ লিটার)',
+        description: 'ভ্যাকুয়াম ইনসুলেটেড — গরম/ঠান্ডা ১২ ঘণ্টা।',
+        price: 550,
+        unit: 'piece',
+        category: ProductCategory.HOME_KITCHEN,
+        stock: 60,
+        imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=400&fit=crop',
+        sellerId: bizGrocery.id,
+      },
+      {
+        name: 'নন-স্টিক ফ্রাইং প্যান (২৬ সেমি)',
+        description: 'সিরামিক কোটিং, কাঠের হাতল — ইন্ডাকশন সাপোর্ট।',
+        price: 890,
+        unit: 'piece',
+        category: ProductCategory.HOME_KITCHEN,
+        stock: 35,
+        imageUrl: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop',
+        sellerId: bizGrocery.id,
+      },
+
+      // ——— সৌন্দর্য / Beauty & Health ———
+      {
+        name: 'সানস্ক্রিন SPF 50+ (১০০ মিলি)',
+        description: 'ওয়াটারপ্রুফ ফর্মুলা — দৈনিক ব্যবহারে নিরাপদ।',
+        price: 480,
+        unit: 'tube',
+        category: ProductCategory.BEAUTY_HEALTH,
+        stock: 90,
+        imageUrl: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop',
+        sellerId: bizPharma.id,
+      },
+      {
+        name: 'নারকেল তেল (ভার্জিন, ২০০ মিলি)',
+        description: 'চুল ও ত্বকের যত্নে — কোল্ড প্রেসড।',
+        price: 320,
+        unit: 'bottle',
+        category: ProductCategory.BEAUTY_HEALTH,
+        stock: 120,
+        sellerId: bizPharma.id,
+      },
+    ],
+  });
+
   const count = await prisma.listing.count();
+  const productCount = await prisma.product.count();
   // eslint-disable-next-line no-console
   console.log(
-    `Seed complete: ${count} listings (ঢাকা-কেন্দ্রিক). সব অ্যাকাউন্টের ডেমো পাসওয়ার্ড: lifelink-demo`,
+    `Seed complete: ${count} listings + ${productCount} products (ঢাকা-কেন্দ্রিক). সব অ্যাকাউন্টের ডেমো পাসওয়ার্ড: lifelink-demo`,
   );
   // eslint-disable-next-line no-console
   console.log(
